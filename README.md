@@ -1,4 +1,4 @@
 kan-java
 ========
 
-A dynamic compilation tool for java which also allows you to cut language features.
+A dynamic compilation tool for java which allows you to cut language features.

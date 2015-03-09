@@ -1,0 +1,8 @@
+package kanjava.test;
+
+public class TestCompile {
+
+    public static void main(String... args) {
+        assert true;
+    }
+}
