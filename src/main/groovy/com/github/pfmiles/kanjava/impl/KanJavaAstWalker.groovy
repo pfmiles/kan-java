@@ -2,7 +2,6 @@ package com.github.pfmiles.kanjava.impl
 
 import javax.annotation.processing.Messager
 
-import com.github.pfmiles.kanjava.ErrMsg
 import com.github.pfmiles.kanjava.impl.hooks.VisitAssertHook
 import com.sun.source.tree.AnnotationTree
 import com.sun.source.tree.ArrayAccessTree

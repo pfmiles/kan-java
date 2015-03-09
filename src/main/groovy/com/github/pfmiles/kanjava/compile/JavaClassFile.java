@@ -1,4 +1,4 @@
-package com.github.pfmiles.kanjava;
+package com.github.pfmiles.kanjava.compile;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,9 +10,6 @@ import java.io.Writer;
 import java.net.URI;
 
 import javax.tools.SimpleJavaFileObject;
-
-import com.github.pfmiles.kanjava.compile.DynaCompileUtil;
-
 
 /**
  * A compiled java class file in memory.
@@ -106,5 +103,9 @@ public class JavaClassFile extends SimpleJavaFileObject {
         } else if (!uri.equals(other.toUri()))
             return false;
         return true;
+    }
+
+    public byte[] getData() {
+        return data;
     }
 }

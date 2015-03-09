@@ -15,6 +15,9 @@ class KanJavaTest extends GroovyTestCase {
         writer.toString()
     }
 
+    // TODO 测试编译成功情形：互相依赖的2个class
+
+    // 测试基本情形，禁止assert语句
     void testCompile(){
         // test for assertion
         def kan = new KanJava(Feature.assertion)
@@ -24,7 +27,7 @@ class KanJavaTest extends GroovyTestCase {
 
         assertTrue !rst.isSuccess()
         assertTrue rst.errMsg != null
-        assertTrue rst.compiledClassFiles == null
+        assertTrue rst.classes == null
         println rst.errMsg
     }
 

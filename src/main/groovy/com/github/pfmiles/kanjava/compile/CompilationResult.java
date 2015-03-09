@@ -1,12 +1,9 @@
 package com.github.pfmiles.kanjava.compile;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.tools.JavaFileObject;
-
-import com.github.pfmiles.kanjava.JavaClassFile;
-
 
 /**
  * 编译结果
@@ -23,7 +20,7 @@ public class CompilationResult {
     }
 
     public CompilationResult(Iterable<JavaFileObject> list) {
-        this.classFiles = new HashSet<JavaClassFile>();
+        this.classFiles = new LinkedHashSet<JavaClassFile>();
         for (JavaFileObject f : list) {
             this.classFiles.add((JavaClassFile) f);
         }

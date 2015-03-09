@@ -19,7 +19,6 @@ import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 
-import com.github.pfmiles.kanjava.JavaClassFile;
 import com.github.pfmiles.kanjava.JavaSourceFile;
 
 /**

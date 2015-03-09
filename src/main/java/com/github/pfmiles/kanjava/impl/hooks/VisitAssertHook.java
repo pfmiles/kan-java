@@ -5,7 +5,7 @@ import groovy.lang.Closure;
 import java.util.List;
 import java.util.Map;
 
-import com.github.pfmiles.kanjava.ErrMsg;
+import com.github.pfmiles.kanjava.impl.ErrMsg;
 import com.github.pfmiles.kanjava.impl.Hook;
 import com.sun.source.tree.AssertTree;
 

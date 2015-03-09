@@ -9,7 +9,6 @@ import javax.annotation.processing.SupportedSourceVersion
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 
-import com.github.pfmiles.kanjava.ErrMsg
 import com.sun.source.util.TreePath
 import com.sun.source.util.Trees
 import com.sun.tools.javac.model.JavacElements

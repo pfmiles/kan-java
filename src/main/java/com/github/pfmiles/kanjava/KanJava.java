@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,8 +13,11 @@ import java.util.Set;
 import javax.annotation.processing.Processor;
 
 import com.github.pfmiles.kanjava.compile.CompilationResult;
+import com.github.pfmiles.kanjava.compile.DynaCompileClassLoader;
 import com.github.pfmiles.kanjava.compile.DynaCompileUtil;
+import com.github.pfmiles.kanjava.compile.JavaClassFile;
 import com.github.pfmiles.kanjava.impl.Cuttable;
+import com.github.pfmiles.kanjava.impl.ErrMsg;
 import com.github.pfmiles.kanjava.impl.Hook;
 import com.github.pfmiles.kanjava.impl.KanJavaProcessor;
 
@@ -130,7 +134,7 @@ public class KanJava {
      * @return 编译结果，包括class bytes和可能的错误信息
      * @throws KanJavaException
      */
-    public KanJavaCompileResult compile(List<JavaSourceFile> sources, List<DiskJarFile> clsPathJars) throws KanJavaException {
+    public KanJavaCompileResult compile(List<JavaSourceFile> sources, List<DiskJarFile> clsPathJars) {
         if (sources == null || sources.isEmpty())
             throw new KanJavaException("Compiling sources must not be null or empty.");
         List<Processor> procs = new ArrayList<Processor>();
@@ -139,7 +143,7 @@ public class KanJava {
         Set<DiskJarFile> clsPathSet = new HashSet<DiskJarFile>();
         if (clsPathJars != null)
             clsPathSet.addAll(clsPathJars);
-        CompilationResult rst = DynaCompileUtil.compile(new HashSet<JavaSourceFile>(sources), clsPathSet, procs);
+        CompilationResult rst = DynaCompileUtil.compile(new LinkedHashSet<JavaSourceFile>(sources), clsPathSet, procs);
         StringBuilder sb = new StringBuilder();
         KanJavaCompileResult ret = new KanJavaCompileResult();
         if (rst.isError()) {
@@ -151,9 +155,35 @@ public class KanJava {
             }
         }
         ret.setErrMsg(sb.toString());
-        if (ret.isSuccess()) // TODO 将files编译成class
-            ret.setCompiledClsFiles(rst.getClassFiles());
+        if (ret.isSuccess())
+            try {
+                ret.setClasses(loadCompiledClasses(rst.getClassFiles()));
+            } catch (ClassNotFoundException e) {
+                throw new KanJavaException(e);
+            }
         return ret;
     }
 
+    private List<Class<?>> loadCompiledClasses(Set<JavaClassFile> classFiles) throws ClassNotFoundException {
+        List<Class<?>> ret = new ArrayList<Class<?>>();
+        Map<String, byte[]> clsMap = new HashMap<String, byte[]>();
+        for (JavaClassFile f : classFiles)
+            clsMap.put(f.getBinaryClassName(), f.getData());
+        DynaCompileClassLoader loader = new DynaCompileClassLoader(getParentClsLoader(), clsMap);
+        for (JavaClassFile f : classFiles)
+            ret.add(loader.loadClass(f.getBinaryClassName()));
+        return ret;
+    }
+
+    private static ClassLoader getParentClsLoader() {
+        ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
+        if (ctxLoader != null) {
+            try {
+                ctxLoader.loadClass(KanJava.class.getName());
+                return ctxLoader;
+            } catch (ClassNotFoundException e) {
+            }
+        }
+        return KanJava.class.getClassLoader();
+    }
 }

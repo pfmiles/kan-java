@@ -1,8 +1,6 @@
 package com.github.pfmiles.kanjava;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author <a href="mailto:miles.wy.1@gmail.com">pf_miles</a>
@@ -10,7 +8,7 @@ import java.util.Set;
  */
 public class KanJavaCompileResult {
     private String errMsg;
-    private List<JavaClassFile> clsFiles;
+    private List<Class<?>> classes;
 
     /**
      * 取得编译错误信息
@@ -30,16 +28,15 @@ public class KanJavaCompileResult {
         return errMsg == null || errMsg.trim() == "";
     }
 
-    public void setCompiledClsFiles(Set<JavaClassFile> classFiles) {
-        this.clsFiles = new ArrayList<JavaClassFile>(classFiles);
-    }
-
     /**
      * 取得编译好的内存class文件
-     * 
      */
-    public List<JavaClassFile> getCompiledClassFiles() {
-        return this.clsFiles;
+    public List<Class<?>> getClasses() {
+        return classes;
+    }
+
+    public void setClasses(List<Class<?>> classes) {
+        this.classes = classes;
     }
 
 }

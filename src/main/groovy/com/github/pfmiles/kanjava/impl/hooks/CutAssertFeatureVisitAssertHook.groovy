@@ -1,8 +1,8 @@
 package com.github.pfmiles.kanjava.impl.hooks
 
-import com.github.pfmiles.kanjava.ErrMsg
 import com.github.pfmiles.kanjava.Feature
 import com.github.pfmiles.kanjava.impl.Cuttable
+import com.github.pfmiles.kanjava.impl.ErrMsg;
 import com.github.pfmiles.kanjava.impl.hooks.VisitAssertHook;
 import com.sun.source.tree.AssertTree
 
