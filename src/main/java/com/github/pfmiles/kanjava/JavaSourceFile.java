@@ -14,6 +14,12 @@ import javax.tools.SimpleJavaFileObject;
 
 import com.github.pfmiles.kanjava.compile.DynaCompileUtil;
 
+/**
+ * 用作编译时以string形式传入java源文件
+ * 
+ * @author <a href="mailto:miles.wy.1@gmail.com">pf_miles</a>
+ * 
+ */
 public class JavaSourceFile extends SimpleJavaFileObject {
 
     private String fileName;
@@ -23,9 +29,9 @@ public class JavaSourceFile extends SimpleJavaFileObject {
      * 创建内存java源码文件
      * 
      * @param fileName
-     *            文件名
+     *            文件名, 如:Test.java
      * @param pkg
-     *            包名
+     *            类所属包名, 如:com.test
      * @param code
      *            代码
      */

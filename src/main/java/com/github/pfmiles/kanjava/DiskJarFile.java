@@ -14,6 +14,8 @@ import javax.tools.FileObject;
 import com.github.pfmiles.kanjava.compile.DynaCompilationException;
 
 /**
+ * 用作编译时通过文件路径传入想要放入classpath的jar包
+ * 
  * @author pf-miles 2014-4-6 下午6:14:45
  */
 public class DiskJarFile implements FileObject {
@@ -21,6 +23,9 @@ public class DiskJarFile implements FileObject {
     private File file;
     private URI uri;
 
+    /**
+     * 通过文件系统绝对路径指定jar包位置
+     */
     public DiskJarFile(String absolutePath) {
         file = new File(absolutePath);
         if (!file.exists())

@@ -22,7 +22,7 @@ import com.github.pfmiles.kanjava.impl.Hook;
 import com.github.pfmiles.kanjava.impl.KanJavaProcessor;
 
 /**
- * Entry point.
+ * kan-java编译工具
  * 
  * @author <a href="mailto:miles.wy.1@gmail.com">pf_miles</a>
  * 
@@ -42,18 +42,20 @@ public class KanJava {
      *            希望被砍掉的功能列表
      */
     public KanJava(Cuttable... cuts) {
-        this.cuts = Arrays.asList(cuts);
         this.hooks = new HashMap<Class<? extends Hook>, List<Hook>>();
-        for (Cuttable cut : cuts) {
-            for (Hook h : cut.getHooks()) {
-                List<Class<? extends Hook>> interfaceClses = resolveHookInterfaceClses(h);
-                for (Class<? extends Hook> interfaceCls : interfaceClses) {
-                    List<Hook> hks = this.hooks.get(interfaceCls);
-                    if (hks == null) {
-                        hks = new ArrayList<Hook>();
-                        this.hooks.put(interfaceCls, hks);
+        if (cuts != null) {
+            this.cuts = Arrays.asList(cuts);
+            for (Cuttable cut : cuts) {
+                for (Hook h : cut.getHooks()) {
+                    List<Class<? extends Hook>> interfaceClses = resolveHookInterfaceClses(h);
+                    for (Class<? extends Hook> interfaceCls : interfaceClses) {
+                        List<Hook> hks = this.hooks.get(interfaceCls);
+                        if (hks == null) {
+                            hks = new ArrayList<Hook>();
+                            this.hooks.put(interfaceCls, hks);
+                        }
+                        hks.add(h);
                     }
-                    hks.add(h);
                 }
             }
         }
@@ -128,9 +130,9 @@ public class KanJava {
      * 动态编译String形式的java源码
      * 
      * @param sources
-     *            源文件列表
+     *            源文件列表, 不能为空
      * @param clsPathJars
-     *            编译时作为classpath的jar包文件列表
+     *            编译时作为classpath的jar包文件列表, 可为空
      * @return 编译结果，包括class bytes和可能的错误信息
      * @throws KanJavaException
      */
@@ -154,7 +156,8 @@ public class KanJava {
                 sb.append(msg.toString()).append("\n");
             }
         }
-        ret.setErrMsg(sb.toString());
+        if (sb.length() != 0)
+            ret.setErrMsg(sb.toString());
         if (ret.isSuccess())
             try {
                 ret.setClasses(loadCompiledClasses(rst.getClassFiles()));

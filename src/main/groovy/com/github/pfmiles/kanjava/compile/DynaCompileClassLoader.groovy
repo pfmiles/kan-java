@@ -7,18 +7,18 @@ import java.util.Map;
  * 
  * @author pf-miles 2013-9-25 上午9:59:24
  */
-public class DynaCompileClassLoader extends ClassLoader {
+class DynaCompileClassLoader extends ClassLoader {
 
-    private Map<String, byte[]> inMemCls;
+    Map<String, byte[]> inMemCls;
 
-    public DynaCompileClassLoader(ClassLoader parent, Map<String, byte[]> clses) {
+    DynaCompileClassLoader(ClassLoader parent, Map<String, byte[]> clses) {
         super(parent);
         this.inMemCls = clses;
     }
 
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         byte[] b = this.inMemCls.get(name);
-        return defineClass(name, b, 0, b.length);
+        defineClass(name, b, 0, b.length);
     }
 
 }

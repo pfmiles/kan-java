@@ -15,14 +15,26 @@ class KanJavaTest extends GroovyTestCase {
         writer.toString()
     }
 
-    // TODO 测试编译成功情形：互相依赖的2个class
+    // 测试编译成功情形：互相依赖的2个class
+    void testCompileSuccess(){
+        def kan = new KanJava()
+        def srcs = []
+        srcs << new JavaSourceFile("Foo.java", "kanjava.test", readContent("testSuccess/Foo.src"))
+        srcs << new JavaSourceFile("Bar.java", "kanjava.test", readContent("testSuccess/Bar.src"))
+        
+        def rst = kan.compile(srcs, null)
+        assertTrue rst.isSuccess()
+        assertTrue rst.errMsg == null
+        assertTrue(rst.classes !=null && rst.classes.size == 2)
+        println rst.classes
+    }
 
     // 测试基本情形，禁止assert语句
-    void testCompile(){
+    void testAssert(){
         // test for assertion
         def kan = new KanJava(Feature.assertion)
         def srcs = []
-        srcs << new JavaSourceFile("TestCompile.java", "kanjava.test", readContent("TestCompile.src"));
+        srcs << new JavaSourceFile("TestAssert.java", "kanjava.test", readContent("testAssert/TestAssert.src"));
         def rst = kan.compile(srcs, null)
 
         assertTrue !rst.isSuccess()

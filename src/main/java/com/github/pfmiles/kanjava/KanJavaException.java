@@ -1,6 +1,8 @@
 package com.github.pfmiles.kanjava;
 
 /**
+ * 发生未预料的系统错误
+ * 
  * @author <a href="mailto:miles.wy.1@gmail.com">pf_miles</a>
  * 
  */

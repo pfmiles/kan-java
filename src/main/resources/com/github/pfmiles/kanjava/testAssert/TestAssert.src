@@ -1,6 +1,6 @@
 package kanjava.test;
 
-public class TestCompile {
+public class TestAssert {
 
     public static void main(String... args) {
         assert true;

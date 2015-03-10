@@ -3,6 +3,9 @@ package com.github.pfmiles.kanjava;
 import java.util.List;
 
 /**
+ * 
+ * kan-java编译结果
+ * 
  * @author <a href="mailto:miles.wy.1@gmail.com">pf_miles</a>
  * 
  */
@@ -25,7 +28,7 @@ public class KanJavaCompileResult {
      * 编译是否成功
      */
     public boolean isSuccess() {
-        return errMsg == null || errMsg.trim() == "";
+        return errMsg == null || "".equals(errMsg.trim());
     }
 
     /**

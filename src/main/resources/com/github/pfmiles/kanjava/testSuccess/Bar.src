@@ -1,0 +1,13 @@
+package kanjava.test;
+
+public class Bar extends Foo {
+    private int score;
+    
+    public int getScore(){
+        return score;
+    }
+    @Override
+    public String getName(){
+        return "Bar_" + super.getName();
+    }
+}
