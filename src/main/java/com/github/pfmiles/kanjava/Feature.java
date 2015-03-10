@@ -6,6 +6,7 @@ import java.util.List;
 import com.github.pfmiles.kanjava.impl.Cuttable;
 import com.github.pfmiles.kanjava.impl.Hook;
 import com.github.pfmiles.kanjava.impl.hooks.CutAssertFeatureVisitAssertHook;
+import com.github.pfmiles.kanjava.impl.hooks.CutForLoopFeatureVisitForLoopHook;
 
 /**
  * 预置的各种java语言特性，可选择性地"砍"
@@ -14,54 +15,54 @@ import com.github.pfmiles.kanjava.impl.hooks.CutAssertFeatureVisitAssertHook;
  * 
  */
 public enum Feature implements Cuttable {
-//    /**
-//     * 嵌套类
-//     */
-//    nestedClass,
-//    /**
-//     * for循环
-//     */
-//    forLoop,
-//    /**
-//     * while循环
-//     */
-//    whileLoop,
-//    /**
-//     * do-while循环
-//     */
-//    doWhileLoop,
-//    /**
-//     * 增强版for循环(for-each)
-//     */
-//    enhancedForLoop,
+    // /**
+    // * 嵌套类
+    // */
+    // nestedClass,
+    /**
+     * for循环
+     */
+    forLoop(new CutForLoopFeatureVisitForLoopHook()),
+    // /**
+    // * while循环
+    // */
+    // whileLoop,
+    // /**
+    // * do-while循环
+    // */
+    // doWhileLoop,
+    // /**
+    // * 增强版for循环(for-each)
+    // */
+    // enhancedForLoop,
     /**
      * assert语句
      */
     assertion(new CutAssertFeatureVisitAssertHook());
-//    /**
-//     * break语句
-//     */
-//    breakStmt,
-//    /**
-//     * 带标签的break语句, 如：
-//     * 
-//     * <pre>
-//     * break label1;
-//     * </pre>
-//     */
-//    LabeledBreak,
-//    /**
-//     * continue语句
-//     */
-//    continueStmt,
-//    /**
-//     * 带标签的continue语句，如:
-//     * 
-//     * <pre>
-//     * continue label1;
-//     * </pre>
-//     */
-//    labeledContinue;
+    // /**
+    // * break语句
+    // */
+    // breakStmt,
+    // /**
+    // * 带标签的break语句, 如：
+    // *
+    // * <pre>
+    // * break label1;
+    // * </pre>
+    // */
+    // LabeledBreak,
+    // /**
+    // * continue语句
+    // */
+    // continueStmt,
+    // /**
+    // * 带标签的continue语句，如:
+    // *
+    // * <pre>
+    // * continue label1;
+    // * </pre>
+    // */
+    // labeledContinue;
 
     // 本feature关联的ast walker hook
     private List<Hook> hooks;

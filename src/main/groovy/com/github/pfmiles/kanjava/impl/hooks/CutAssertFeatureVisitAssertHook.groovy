@@ -2,8 +2,8 @@ package com.github.pfmiles.kanjava.impl.hooks
 
 import com.github.pfmiles.kanjava.Feature
 import com.github.pfmiles.kanjava.impl.Cuttable
-import com.github.pfmiles.kanjava.impl.ErrMsg;
-import com.github.pfmiles.kanjava.impl.hooks.VisitAssertHook;
+import com.github.pfmiles.kanjava.impl.ErrMsg
+import com.github.pfmiles.kanjava.impl.GlobalContext
 import com.sun.source.tree.AssertTree
 
 /**
@@ -18,14 +18,18 @@ class CutAssertFeatureVisitAssertHook implements VisitAssertHook{
         Feature.assertion;
     }
 
-    void beforeVisitAssert(AssertTree node, List<ErrMsg> errMsgs, Map<String, Object> ctx, Closure<List<Map<String, Long>>> resolveRowAndCol,
+    void beforeVisitCondition(AssertTree node, List<ErrMsg> errMsgs, GlobalContext ctx, Closure<List<Map<String, Long>>> resolveRowAndCol,
             Closure<Void> setError) {
         setError()
         def rowAndCol = resolveRowAndCol(node)
         errMsgs.add(new ErrMsg(rowAndCol.row, rowAndCol.col, "Assertions are not allowed."))
     }
 
-    void afterVisitAssert(AssertTree node, List<ErrMsg> errMsgs, Map<String, Object> ctx, Closure<List<Map<String, Long>>> resolveRowAndCol,
+    void afterVisitConditionAndBeforeDetail(AssertTree node, List<ErrMsg> errMsgs, GlobalContext ctx,
+            Closure<List<Map<String, Long>>> resolveRowAndCol, Closure<Void> setError) {
+    }
+
+    void afterVisitDetail(AssertTree node, List<ErrMsg> errMsgs, GlobalContext ctx, Closure<List<Map<String, Long>>> resolveRowAndCol,
             Closure<Void> setError) {
     }
 }

@@ -3,6 +3,7 @@ package com.github.pfmiles.kanjava.impl
 import javax.annotation.processing.Messager
 
 import com.github.pfmiles.kanjava.impl.hooks.VisitAssertHook
+import com.github.pfmiles.kanjava.impl.hooks.VisitForLoopHook
 import com.sun.source.tree.AnnotationTree
 import com.sun.source.tree.ArrayAccessTree
 import com.sun.source.tree.ArrayTypeTree
@@ -44,6 +45,7 @@ import com.sun.source.tree.ReturnTree
 import com.sun.source.tree.SwitchTree
 import com.sun.source.tree.SynchronizedTree
 import com.sun.source.tree.ThrowTree
+import com.sun.source.tree.Tree
 import com.sun.source.tree.TryTree
 import com.sun.source.tree.TypeCastTree
 import com.sun.source.tree.TypeParameterTree
@@ -70,7 +72,7 @@ class KanJavaAstWalker extends TreePathScanner<Void, Void> {
     List<ErrMsg> errMsgs = [];
 
     // 检查执行过程中的上下文, cuttable -> 隶属特定cuttable的全局map
-    def context = [:];
+    GlobalContext ctx = new GlobalContext();
 
     // hook点接口类 -> hooks实例映射
     Map<Class<? extends Hook>, List<Hook>> hooks;
@@ -90,23 +92,33 @@ class KanJavaAstWalker extends TreePathScanner<Void, Void> {
      */
     def setError = {-> this.success = false }
 
-    /**
-     * 获取cuttable对应的全局context, 是个map
-     */
-    def resolveCtx(cuttable){
-        if(cuttable in this.context){
-            this.context[cuttable]
-        }else{
-            this.context[cuttable] = [:]
-            this.context[cuttable]
-        }
+    Void visitAssert(AssertTree node, Void arg1) {
+        // 取得assert hooks
+        def ahooks = this.hooks[VisitAssertHook.class]
+        ahooks.each {it.beforeVisitCondition(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan((Tree)node.getCondition(), arg1);
+        ahooks.each {it.afterVisitConditionAndBeforeDetail(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan((Tree)node.getDetail(), arg1);
+        ahooks.each {it.afterVisitDetail(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        return null;
     }
 
-    Void visitAssert(AssertTree node, Void arg1) {
-        def ahooks = this.hooks[VisitAssertHook.class]
-        ahooks?.each { it.beforeVisitAssert(node, errMsgs, resolveCtx(it.getCuttable()), resolveRowAndCol, setError) }
-        super.visitAssert(node, arg1)
-        ahooks?.each { it.afterVisitAssert(node, errMsgs, resolveCtx(it.getCuttable()), resolveRowAndCol, setError) }
+    Void visitForLoop(ForLoopTree node, Void arg1) {
+        // 取得for-loop hooks
+        def fhooks = this.hooks[VisitForLoopHook.class]
+        // 访问初始条件
+        fhooks.each {it.beforeVisitInitializer(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan(node.getInitializer(), arg1);
+        fhooks.each {it.afterVisitInitializerAndBeforeCondition(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        // 访问循环条件
+        scan(node.getCondition(), arg1);
+        fhooks.each {it.afterVisitConditionAndBeforeUpdate(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        // 访问递进条件
+        scan(node.getUpdate(), arg1);
+        fhooks.each {it.afterVisitUpdateAndBeforeStatement(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        // 访问循环体
+        scan(node.getStatement(), arg1);
+        fhooks.each {it.afterVisitStatement(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
         return null;
     }
 
@@ -279,15 +291,6 @@ class KanJavaAstWalker extends TreePathScanner<Void, Void> {
     Void visitExpressionStatement(ExpressionStatementTree arg0, Void arg1) {
         // TODO Auto-generated method stub
         return super.visitExpressionStatement(arg0, arg1);
-    }
-
-    /* (non-Javadoc)
-     * @see com.sun.source.util.TreeScanner#visitForLoop(com.sun.source.tree.ForLoopTree, java.lang.Object)
-     */
-    @Override
-    Void visitForLoop(ForLoopTree arg0, Void arg1) {
-        // TODO Auto-generated method stub
-        return super.visitForLoop(arg0, arg1);
     }
 
     /* (non-Javadoc)

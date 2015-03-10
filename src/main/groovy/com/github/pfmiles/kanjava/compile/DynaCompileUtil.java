@@ -3,9 +3,13 @@ package com.github.pfmiles.kanjava.compile;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.Processor;
@@ -18,8 +22,8 @@ import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
-import com.github.pfmiles.kanjava.DiskJarFile;
 import com.github.pfmiles.kanjava.JavaSourceFile;
+import com.github.pfmiles.kanjava.KanJavaException;
 
 /**
  * 将传入的内存java文件结合内存classpath，编译为内存class文件
@@ -28,21 +32,24 @@ import com.github.pfmiles.kanjava.JavaSourceFile;
  */
 public class DynaCompileUtil {
 
+    public static final String PATH_SEP = "/";
+
     /**
      * 传入源码以及classpath中的jar包,编译出class文件(内存文件)
      * 
      * @param srcs
      *            源码文件
-     * @param cpJarFiles
-     *            准备放入classpath的jar包(存在于硬盘上)，可为null
+     * @param cpJarFilePathStr
+     *            classpath字符串，可为null
      * @return 编译结果
      */
-    public static CompilationResult compile(Set<JavaSourceFile> srcs, Set<DiskJarFile> cpJarFiles, Iterable<? extends Processor> processors) {
-
+    public static CompilationResult compile(Set<JavaSourceFile> srcs, String cpJarFilePathStr, Iterable<? extends Processor> processors) {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DynaFileManager fileManager = new DynaFileManager(compiler.getStandardFileManager(null, null, null));
         try {
-            List<String> options = Arrays.asList("-classpath", toClassPathStr(cpJarFiles));
+            List<String> options = null;
+            if (cpJarFilePathStr != null)
+                options = Arrays.asList("-classpath", cpJarFilePathStr);
             DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
             StringWriter out = new StringWriter();
             CompilationTask task = compiler.getTask(out, fileManager, diagnostics, options, null, srcs);
@@ -74,23 +81,6 @@ public class DynaCompileUtil {
                 throw new DynaCompilationException(e);
             }
         }
-    }
-
-    // 生成动态编译的classpath，应包括所有传入的jar包
-    private static String toClassPathStr(Set<DiskJarFile> cpJars) {
-        Set<String> ps = new HashSet<String>();
-        if (cpJars != null)
-            for (DiskJarFile f : cpJars) {
-                ps.add(f.getAbsolutePath());
-            }
-
-        StringBuilder sb = new StringBuilder();
-        for (String s : ps) {
-            if (sb.length() != 0)
-                sb.append(File.pathSeparator);
-            sb.append(s);
-        }
-        return sb.toString();
     }
 
     public static boolean isBlank(String str) {
@@ -137,5 +127,91 @@ public class DynaCompileUtil {
             return "";
         }
         return str.substring(pos + separator.length());
+    }
+
+    /**
+     * Analyze class path for hot compilation
+     * 
+     * @return
+     */
+    public static String getClassPath() {
+        StringBuilder sb = new StringBuilder();
+
+        // include classpath system properties
+        for (Map.Entry<Object, Object> e : System.getProperties().entrySet()) {
+            String k = (String) e.getKey();
+            if (k.endsWith("class.path")) {
+                if (sb.length() != 0)
+                    sb.append(File.pathSeparator);
+                sb.append(e.getValue());
+            }
+        }
+
+        // if url class loader, include all classpath urls
+        ClassLoader loader = getParentClsLoader();
+        if (loader instanceof URLClassLoader) {
+            for (URL url : ((URLClassLoader) loader).getURLs()) {
+                String dropinccPath = toFilePath(url);
+                if (dropinccPath != null && !"".equals(dropinccPath) && sb.indexOf(dropinccPath) == -1) {
+                    if (sb.length() != 0)
+                        sb.append(File.pathSeparator);
+                    sb.append(dropinccPath);
+                }
+            }
+        }
+
+        // include paths analyzed from file system
+        URL url = DynaCompileUtil.class.getResource("DynaCompileUtil.class");
+        if (url != null) {
+            String dropinccPath = null;
+            if ("jar".equalsIgnoreCase(url.getProtocol())) {
+                String path = toFilePath(url);
+                // could not handle nested jars
+                dropinccPath = path != null ? path.substring(path.indexOf(":") + 1, path.indexOf("!")) : null;
+            } else if ("file".equalsIgnoreCase(url.getProtocol())) {
+                String path = toFilePath(url);
+                dropinccPath = path != null ? path.substring(0,
+                        path.lastIndexOf(PATH_SEP + DynaCompileUtil.class.getName().replace(".", PATH_SEP) + ".class")) : null;
+            }
+            if (dropinccPath != null && !"".equals(dropinccPath) && sb.indexOf(dropinccPath) == -1) {
+                if (sb.length() != 0)
+                    sb.append(File.pathSeparator);
+                sb.append(dropinccPath);
+            }
+        }
+        return sb.toString();
+    }
+
+    private static String toFilePath(URL url) {
+        String protocal = url.getProtocol();
+        if (!("jar".equalsIgnoreCase(protocal) || "file".equalsIgnoreCase(protocal)))
+            return null;
+        try {
+            File f = new File(url.toURI().getSchemeSpecificPart());
+            if (f.exists()) {
+                return f.toURI().getSchemeSpecificPart();
+            } else {
+                return null;
+            }
+        } catch (URISyntaxException e) {
+            throw new KanJavaException(e);
+        }
+    }
+
+    /**
+     * Get the proper parent class loader for hot compilation class loaders.
+     * 
+     * @return
+     */
+    public static ClassLoader getParentClsLoader() {
+        ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
+        if (ctxLoader != null) {
+            try {
+                ctxLoader.loadClass(DynaCompileUtil.class.getName());
+                return ctxLoader;
+            } catch (ClassNotFoundException e) {
+            }
+        }
+        return DynaCompileUtil.class.getClassLoader();
     }
 }

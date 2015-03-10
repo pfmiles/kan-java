@@ -1,7 +1,9 @@
 package com.github.pfmiles.kanjava;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +36,10 @@ public class KanJava {
 
     // ast walker的各hook点的mapping: hookInterfaceClass -> hookList
     private Map<Class<? extends Hook>, List<Hook>> hooks;
+
+    private static final class CpHolder {
+        public static final String DYNA_CP = DynaCompileUtil.getClassPath();
+    }
 
     /**
      * 创建KanJava编译工具实例
@@ -127,25 +133,34 @@ public class KanJava {
     }
 
     /**
+     * 动态编译String形式的java源码, kan-java将会自动分析出编译所需的classpath
+     * 
+     * @param sources
+     *            源文件列表, 不能为空
+     * @return 编译结果，包括class bytes和可能的错误信息
+     * @throws KanJavaException
+     */
+    public KanJavaCompileResult compile(List<JavaSourceFile> sources) {
+        return compile(sources, CpHolder.DYNA_CP);
+    }
+
+    /**
      * 动态编译String形式的java源码
      * 
      * @param sources
      *            源文件列表, 不能为空
-     * @param clsPathJars
-     *            编译时作为classpath的jar包文件列表, 可为空
+     * @param clsPathStr
+     *            编译时用的classpath字符串, 可为空
      * @return 编译结果，包括class bytes和可能的错误信息
      * @throws KanJavaException
      */
-    public KanJavaCompileResult compile(List<JavaSourceFile> sources, List<DiskJarFile> clsPathJars) {
+    public KanJavaCompileResult compile(List<JavaSourceFile> sources, String clsPathStr) {
         if (sources == null || sources.isEmpty())
             throw new KanJavaException("Compiling sources must not be null or empty.");
         List<Processor> procs = new ArrayList<Processor>();
         KanJavaProcessor processor = new KanJavaProcessor(this.hooks);
         procs.add(processor);
-        Set<DiskJarFile> clsPathSet = new HashSet<DiskJarFile>();
-        if (clsPathJars != null)
-            clsPathSet.addAll(clsPathJars);
-        CompilationResult rst = DynaCompileUtil.compile(new LinkedHashSet<JavaSourceFile>(sources), clsPathSet, procs);
+        CompilationResult rst = DynaCompileUtil.compile(new LinkedHashSet<JavaSourceFile>(sources), clsPathStr, procs);
         StringBuilder sb = new StringBuilder();
         KanJavaCompileResult ret = new KanJavaCompileResult();
         if (rst.isError()) {
@@ -165,6 +180,37 @@ public class KanJava {
                 throw new KanJavaException(e);
             }
         return ret;
+    }
+
+    /**
+     * 动态编译String形式的java源码
+     * 
+     * @param sources
+     *            源文件列表, 不能为空
+     * @param clsPathJars
+     *            编译时作为classpath的jar包文件列表, 可为空
+     * @return 编译结果，包括class bytes和可能的错误信息
+     * @throws KanJavaException
+     */
+    public KanJavaCompileResult compile(List<JavaSourceFile> sources, List<DiskJarFile> clsPathJars) {
+        return compile(sources, toClassPathStr(clsPathJars));
+    }
+
+    // 生成动态编译的classpath，应包括所有传入的jar包
+    private static String toClassPathStr(Collection<DiskJarFile> cpJars) {
+        Set<String> ps = new HashSet<String>();
+        if (cpJars != null)
+            for (DiskJarFile f : cpJars) {
+                ps.add(f.getAbsolutePath());
+            }
+
+        StringBuilder sb = new StringBuilder();
+        for (String s : ps) {
+            if (sb.length() != 0)
+                sb.append(File.pathSeparator);
+            sb.append(s);
+        }
+        return sb.toString();
     }
 
     private List<Class<?>> loadCompiledClasses(Set<JavaClassFile> classFiles) throws ClassNotFoundException {

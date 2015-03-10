@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.pfmiles.kanjava.impl.ErrMsg;
+import com.github.pfmiles.kanjava.impl.GlobalContext;
 import com.github.pfmiles.kanjava.impl.Hook;
 import com.sun.source.tree.AssertTree;
 
@@ -17,37 +18,13 @@ import com.sun.source.tree.AssertTree;
  * 
  */
 public interface VisitAssertHook extends Hook {
-    /**
-     * 在visitAssert之前调用
-     * 
-     * @param node
-     *            assert节点
-     * @param errMsgs
-     *            全局错误列表
-     * @param ctx
-     *            属于本hook关联的cuttable的全局上下文
-     * @param resolveRowAndCol
-     *            传入节点，获得该节点的行号、列号
-     * @param setError
-     *            调用后将本次ast walk设置为失败
-     */
-    void beforeVisitAssert(AssertTree node, List<ErrMsg> errMsgs, Map<String, Object> ctx, Closure<List<Map<String, Long>>> resolveRowAndCol,
+
+    void beforeVisitCondition(AssertTree node, List<ErrMsg> errMsgs, GlobalContext ctx, Closure<List<Map<String, Long>>> resolveRowAndCol,
             Closure<Void> setError);
 
-    /**
-     * 在visitAssert之后调用
-     * 
-     * @param node
-     *            assert节点
-     * @param errMsgs
-     *            全局错误列表
-     * @param ctx
-     *            属于本hook关联的cuttable的全局上下文
-     * @param resolveRowAndCol
-     *            传入节点，获得该节点的行号、列号
-     * @param setError
-     *            调用后将本次ast walk设置为失败
-     */
-    void afterVisitAssert(AssertTree node, List<ErrMsg> errMsgs, Map<String, Object> ctx, Closure<List<Map<String, Long>>> resolveRowAndCol,
+    void afterVisitConditionAndBeforeDetail(AssertTree node, List<ErrMsg> errMsgs, GlobalContext ctx,
+            Closure<List<Map<String, Long>>> resolveRowAndCol, Closure<Void> setError);
+
+    void afterVisitDetail(AssertTree node, List<ErrMsg> errMsgs, GlobalContext ctx, Closure<List<Map<String, Long>>> resolveRowAndCol,
             Closure<Void> setError);
 }
