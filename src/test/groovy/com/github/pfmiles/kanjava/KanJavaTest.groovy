@@ -63,4 +63,17 @@ class KanJavaTest extends GroovyTestCase {
         println rst.errMsg
     }
 
+    // 禁止while循环
+    void testWhileLoop(){
+        def kan = new KanJava(Feature.whileLoop)
+        def srcs = []
+        srcs << new JavaSourceFile("TestWhileLoop.java", "kanjava.test", readContent("testWhileLoop/TestWhileLoop.src"));
+        def rst = kan.compile(srcs)
+
+        assertTrue !rst.isSuccess()
+        assertTrue rst.errMsg != null
+        assertTrue rst.classes == null
+        println rst.errMsg
+    }
+
 }

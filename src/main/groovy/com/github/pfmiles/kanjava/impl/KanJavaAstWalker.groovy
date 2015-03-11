@@ -4,6 +4,7 @@ import javax.annotation.processing.Messager
 
 import com.github.pfmiles.kanjava.impl.hooks.VisitAssertHook
 import com.github.pfmiles.kanjava.impl.hooks.VisitForLoopHook
+import com.github.pfmiles.kanjava.impl.hooks.VisitWhileLoopHook
 import com.sun.source.tree.AnnotationTree
 import com.sun.source.tree.ArrayAccessTree
 import com.sun.source.tree.ArrayTypeTree
@@ -119,6 +120,16 @@ class KanJavaAstWalker extends TreePathScanner<Void, Void> {
         // 访问循环体
         scan(node.getStatement(), arg1);
         fhooks.each {it.afterVisitStatement(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        return null;
+    }
+
+    Void visitWhileLoop(WhileLoopTree node, Void arg1) {
+        def whooks = this.hooks[VisitWhileLoopHook.class]
+        whooks.each {it.beforeVisitCondition(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan(node.getCondition(), arg1);
+        whooks.each {it.afterVisitConditionAndBeforeStatement(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan(node.getStatement(), arg1);
+        whooks.each {it.afterVisitStatement(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
         return null;
     }
 
@@ -507,15 +518,6 @@ class KanJavaAstWalker extends TreePathScanner<Void, Void> {
     Void visitVariable(VariableTree arg0, Void arg1) {
         // TODO Auto-generated method stub
         return super.visitVariable(arg0, arg1);
-    }
-
-    /* (non-Javadoc)
-     * @see com.sun.source.util.TreeScanner#visitWhileLoop(com.sun.source.tree.WhileLoopTree, java.lang.Object)
-     */
-    @Override
-    Void visitWhileLoop(WhileLoopTree arg0, Void arg1) {
-        // TODO Auto-generated method stub
-        return super.visitWhileLoop(arg0, arg1);
     }
 
     /* (non-Javadoc)

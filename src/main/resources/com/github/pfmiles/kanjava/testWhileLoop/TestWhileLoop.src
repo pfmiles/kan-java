@@ -1,0 +1,7 @@
+package kanjava.test;
+
+public class TestWhileLoop {
+    public static void main(String... args) {
+        while(true) System.out.println("hi");
+    }
+}

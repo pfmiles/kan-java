@@ -7,6 +7,7 @@ import com.github.pfmiles.kanjava.impl.Cuttable;
 import com.github.pfmiles.kanjava.impl.Hook;
 import com.github.pfmiles.kanjava.impl.hooks.CutAssertFeatureVisitAssertHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutForLoopFeatureVisitForLoopHook;
+import com.github.pfmiles.kanjava.impl.hooks.CutWhileLoopFeatureVisitWhileLoopHook;
 
 /**
  * 预置的各种java语言特性，可选择性地"砍"
@@ -23,10 +24,10 @@ public enum Feature implements Cuttable {
      * for循环
      */
     forLoop(new CutForLoopFeatureVisitForLoopHook()),
-    // /**
-    // * while循环
-    // */
-    // whileLoop,
+    /**
+     * while循环
+     */
+    whileLoop(new CutWhileLoopFeatureVisitWhileLoopHook()),
     // /**
     // * do-while循环
     // */
