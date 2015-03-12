@@ -3,6 +3,9 @@ package com.github.pfmiles.kanjava.impl
 import javax.annotation.processing.Messager
 
 import com.github.pfmiles.kanjava.impl.hooks.VisitAssertHook
+import com.github.pfmiles.kanjava.impl.hooks.VisitClassHook
+import com.github.pfmiles.kanjava.impl.hooks.VisitDoWhileLoopHook
+import com.github.pfmiles.kanjava.impl.hooks.VisitEnhancedForLoopHook
 import com.github.pfmiles.kanjava.impl.hooks.VisitForLoopHook
 import com.github.pfmiles.kanjava.impl.hooks.VisitWhileLoopHook
 import com.sun.source.tree.AnnotationTree
@@ -133,6 +136,44 @@ class KanJavaAstWalker extends TreePathScanner<Void, Void> {
         return null;
     }
 
+    Void visitClass(ClassTree node, Void arg1) {
+        def chooks = this.hooks[VisitClassHook.class]
+        chooks.each {it.beforeVisitModifiers(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan((Tree)node.getModifiers(), arg1);
+        chooks.each {it.afterVisitModifiersAndBeforeTypeParameters(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan(node.getTypeParameters(), arg1);
+        chooks.each {it.afterVisitTypeParametersAndBeforeExtendsClause(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan((Tree)node.getExtendsClause(), arg1);
+        chooks.each {it.afterVisitExtendsClauseAndBeforeImplementsClause(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan(node.getImplementsClause(), arg1);
+        chooks.each {it.afterVisitImplementsClauseAndBeforeMembers(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan(node.getMembers(), arg1);
+        chooks.each {it.afterVisitMembers(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        return null;
+    }
+
+    Void visitDoWhileLoop(DoWhileLoopTree node, Void arg1) {
+        def dhooks = this.hooks[VisitDoWhileLoopHook.class]
+        dhooks.each {it.beforeVisitStatement(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan(node.getStatement(), arg1);
+        dhooks.each {it.afterVisitStatementAndBeforeCondition(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan(node.getCondition(), arg1);
+        dhooks.each {it.afterVisitCondition(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        return null;
+    }
+
+    Void visitEnhancedForLoop(EnhancedForLoopTree node, Void arg1) {
+        def ehooks = this.hooks[VisitEnhancedForLoopHook.class]
+        ehooks.each {it.beforeVisitVariable(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan(node.getVariable(), arg1);
+        ehooks.each {it.afterVisitVariableAndBeforeExpression(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan(node.getExpression(), arg1);
+        ehooks.each {it.afterVisitExpressionAndBeforeStatement(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        scan(node.getStatement(), arg1);
+        ehooks.each {it.afterVisitStatement(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        return null;
+    }
+
     /* (non-Javadoc)
      * @see com.sun.source.util.TreeScanner#visitAnnotation(com.sun.source.tree.AnnotationTree, java.lang.Object)
      */
@@ -215,15 +256,6 @@ class KanJavaAstWalker extends TreePathScanner<Void, Void> {
     }
 
     /* (non-Javadoc)
-     * @see com.sun.source.util.TreeScanner#visitClass(com.sun.source.tree.ClassTree, java.lang.Object)
-     */
-    @Override
-    Void visitClass(ClassTree arg0, Void arg1) {
-        // TODO Auto-generated method stub
-        return super.visitClass(arg0, arg1);
-    }
-
-    /* (non-Javadoc)
      * @see com.sun.source.util.TreeScanner#visitCompilationUnit(com.sun.source.tree.CompilationUnitTree, java.lang.Object)
      */
     @Override
@@ -260,30 +292,12 @@ class KanJavaAstWalker extends TreePathScanner<Void, Void> {
     }
 
     /* (non-Javadoc)
-     * @see com.sun.source.util.TreeScanner#visitDoWhileLoop(com.sun.source.tree.DoWhileLoopTree, java.lang.Object)
-     */
-    @Override
-    Void visitDoWhileLoop(DoWhileLoopTree arg0, Void arg1) {
-        // TODO Auto-generated method stub
-        return super.visitDoWhileLoop(arg0, arg1);
-    }
-
-    /* (non-Javadoc)
      * @see com.sun.source.util.TreeScanner#visitEmptyStatement(com.sun.source.tree.EmptyStatementTree, java.lang.Object)
      */
     @Override
     Void visitEmptyStatement(EmptyStatementTree arg0, Void arg1) {
         // TODO Auto-generated method stub
         return super.visitEmptyStatement(arg0, arg1);
-    }
-
-    /* (non-Javadoc)
-     * @see com.sun.source.util.TreeScanner#visitEnhancedForLoop(com.sun.source.tree.EnhancedForLoopTree, java.lang.Object)
-     */
-    @Override
-    Void visitEnhancedForLoop(EnhancedForLoopTree arg0, Void arg1) {
-        // TODO Auto-generated method stub
-        return super.visitEnhancedForLoop(arg0, arg1);
     }
 
     /* (non-Javadoc)

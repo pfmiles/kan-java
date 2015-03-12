@@ -6,7 +6,10 @@ import java.util.List;
 import com.github.pfmiles.kanjava.impl.Cuttable;
 import com.github.pfmiles.kanjava.impl.Hook;
 import com.github.pfmiles.kanjava.impl.hooks.CutAssertFeatureVisitAssertHook;
+import com.github.pfmiles.kanjava.impl.hooks.CutDoWhileLoopFeatureVisitDoWhileLoopHook;
+import com.github.pfmiles.kanjava.impl.hooks.CutEnhancedForLoopFeatureVisitEnhancedForLoopHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutForLoopFeatureVisitForLoopHook;
+import com.github.pfmiles.kanjava.impl.hooks.CutNestedClassFeatureVisitClassHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutWhileLoopFeatureVisitWhileLoopHook;
 
 /**
@@ -16,10 +19,10 @@ import com.github.pfmiles.kanjava.impl.hooks.CutWhileLoopFeatureVisitWhileLoopHo
  * 
  */
 public enum Feature implements Cuttable {
-    // /**
-    // * 嵌套类
-    // */
-    // nestedClass,
+    /**
+     * 嵌套类
+     */
+    nestedClass(new CutNestedClassFeatureVisitClassHook()),
     /**
      * for循环
      */
@@ -28,14 +31,14 @@ public enum Feature implements Cuttable {
      * while循环
      */
     whileLoop(new CutWhileLoopFeatureVisitWhileLoopHook()),
-    // /**
-    // * do-while循环
-    // */
-    // doWhileLoop,
-    // /**
-    // * 增强版for循环(for-each)
-    // */
-    // enhancedForLoop,
+    /**
+     * do-while循环
+     */
+    doWhileLoop(new CutDoWhileLoopFeatureVisitDoWhileLoopHook()),
+    /**
+     * 增强版for循环(for-each)
+     */
+    enhancedForLoop(new CutEnhancedForLoopFeatureVisitEnhancedForLoopHook()),
     /**
      * assert语句
      */

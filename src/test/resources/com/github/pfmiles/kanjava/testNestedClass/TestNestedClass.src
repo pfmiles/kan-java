@@ -1,0 +1,10 @@
+package kanjava.test;
+
+public class TestNestedClass {
+
+    private static class Inner1{}
+
+    public static void main(String... args) {
+        Runnable r = new Runnable(){ public void run(){}};
+    }
+}

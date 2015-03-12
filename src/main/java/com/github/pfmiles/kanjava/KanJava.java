@@ -168,7 +168,7 @@ public class KanJava {
         }
         if (!processor.isSuccess()) {
             for (ErrMsg msg : processor.getErrMsgs()) {
-                sb.append(msg.toString());
+                sb.append(msg.toString()).append("\n");
             }
         }
         if (sb.length() != 0)

@@ -76,4 +76,43 @@ class KanJavaTest extends GroovyTestCase {
         println rst.errMsg
     }
 
+    // 禁止嵌套类
+    void testNestedClass(){
+        def kan = new KanJava(Feature.nestedClass)
+        def srcs = []
+        srcs << new JavaSourceFile("TestNestedClass.java", "kanjava.test", readContent("testNestedClass/TestNestedClass.src"));
+        def rst = kan.compile(srcs)
+
+        assertTrue !rst.isSuccess()
+        assertTrue rst.errMsg != null
+        assertTrue rst.classes == null
+        println rst.errMsg
+    }
+
+    // 禁止do-while循环
+    void testDoWhileLoop(){
+        def kan = new KanJava(Feature.doWhileLoop)
+        def srcs = []
+        srcs << new JavaSourceFile("TestDoWhileLoop.java", "kanjava.test", readContent("testDoWhileLoop/TestDoWhileLoop.src"));
+        def rst = kan.compile(srcs)
+
+        assertTrue !rst.isSuccess()
+        assertTrue rst.errMsg != null
+        assertTrue rst.classes == null
+        println rst.errMsg
+    }
+
+    // 禁止for-each循环
+    void testEnhancedForLoop(){
+        def kan = new KanJava(Feature.enhancedForLoop)
+        def srcs = []
+        srcs << new JavaSourceFile("TestEnhancedForLoop.java", "kanjava.test", readContent("testEnhancedForLoop/TestEnhancedForLoop.src"));
+        def rst = kan.compile(srcs)
+
+        assertTrue !rst.isSuccess()
+        assertTrue rst.errMsg != null
+        assertTrue rst.classes == null
+        println rst.errMsg
+    }
+
 }
