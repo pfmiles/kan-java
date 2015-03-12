@@ -6,11 +6,13 @@ import java.util.List;
 import com.github.pfmiles.kanjava.impl.Cuttable;
 import com.github.pfmiles.kanjava.impl.Hook;
 import com.github.pfmiles.kanjava.impl.hooks.CutAssertFeatureVisitAssertHook;
+import com.github.pfmiles.kanjava.impl.hooks.CutBreakFeatureVisitBreakHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutDoWhileLoopFeatureVisitDoWhileLoopHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutEnhancedForLoopFeatureVisitEnhancedForLoopHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutForLoopFeatureVisitForLoopHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutNestedClassFeatureVisitClassHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutWhileLoopFeatureVisitWhileLoopHook;
+import com.github.pfmiles.kanjava.impl.hooks.ForbidLabeledBreakVisitBreakHook;
 
 /**
  * 预置的各种java语言特性，可选择性地"砍"
@@ -42,19 +44,19 @@ public enum Feature implements Cuttable {
     /**
      * assert语句
      */
-    assertion(new CutAssertFeatureVisitAssertHook());
-    // /**
-    // * break语句
-    // */
-    // breakStmt,
-    // /**
-    // * 带标签的break语句, 如：
-    // *
-    // * <pre>
-    // * break label1;
-    // * </pre>
-    // */
-    // LabeledBreak,
+    assertion(new CutAssertFeatureVisitAssertHook()),
+    /**
+     * break语句
+     */
+    breakStmt(new CutBreakFeatureVisitBreakHook()),
+    /**
+     * 带标签的break语句, 如：
+     * 
+     * <pre>
+     * break label1;
+     * </pre>
+     */
+    labeledBreak(new ForbidLabeledBreakVisitBreakHook());
     // /**
     // * continue语句
     // */

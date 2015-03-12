@@ -3,6 +3,7 @@ package com.github.pfmiles.kanjava.impl
 import javax.annotation.processing.Messager
 
 import com.github.pfmiles.kanjava.impl.hooks.VisitAssertHook
+import com.github.pfmiles.kanjava.impl.hooks.VisitBreakHook
 import com.github.pfmiles.kanjava.impl.hooks.VisitClassHook
 import com.github.pfmiles.kanjava.impl.hooks.VisitDoWhileLoopHook
 import com.github.pfmiles.kanjava.impl.hooks.VisitEnhancedForLoopHook
@@ -173,6 +174,12 @@ class KanJavaAstWalker extends TreePathScanner<Void, Void> {
         ehooks.each {it.afterVisitStatement(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
         return null;
     }
+    
+    Void visitBreak(BreakTree node, Void arg1) {
+        def bhooks = this.hooks[VisitBreakHook.class]
+        bhooks.each {it.visit(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        return null;
+    }
 
     /* (non-Javadoc)
      * @see com.sun.source.util.TreeScanner#visitAnnotation(com.sun.source.tree.AnnotationTree, java.lang.Object)
@@ -226,15 +233,6 @@ class KanJavaAstWalker extends TreePathScanner<Void, Void> {
     Void visitBlock(BlockTree arg0, Void arg1) {
         // TODO Auto-generated method stub
         return super.visitBlock(arg0, arg1);
-    }
-
-    /* (non-Javadoc)
-     * @see com.sun.source.util.TreeScanner#visitBreak(com.sun.source.tree.BreakTree, java.lang.Object)
-     */
-    @Override
-    Void visitBreak(BreakTree arg0, Void arg1) {
-        // TODO Auto-generated method stub
-        return super.visitBreak(arg0, arg1);
     }
 
     /* (non-Javadoc)

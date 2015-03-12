@@ -115,4 +115,29 @@ class KanJavaTest extends GroovyTestCase {
         println rst.errMsg
     }
 
+    // 禁止break语句
+    void testBreakStatement(){
+        def kan = new KanJava(Feature.breakStmt)
+        def srcs = []
+        srcs << new JavaSourceFile("TestBreakStmt.java", "kanjava.test", readContent("testBreakStmt/TestBreakStmt.src"));
+        def rst = kan.compile(srcs)
+
+        assertTrue !rst.isSuccess()
+        assertTrue rst.errMsg != null
+        assertTrue rst.classes == null
+        println rst.errMsg
+    }
+
+    // 禁止带标签的break语句
+    void testLabeledBreak(){
+        def kan = new KanJava(Feature.labeledBreak)
+        def srcs = []
+        srcs << new JavaSourceFile("TestLabeledBreak.java", "kanjava.test", readContent("testLabeledBreak/TestLabeledBreak.src"));
+        def rst = kan.compile(srcs)
+
+        assertTrue !rst.isSuccess()
+        assertTrue rst.errMsg != null
+        assertTrue rst.classes == null
+        println rst.errMsg
+    }
 }
