@@ -5,6 +5,7 @@ import javax.annotation.processing.Messager
 import com.github.pfmiles.kanjava.impl.hooks.VisitAssertHook
 import com.github.pfmiles.kanjava.impl.hooks.VisitBreakHook
 import com.github.pfmiles.kanjava.impl.hooks.VisitClassHook
+import com.github.pfmiles.kanjava.impl.hooks.VisitContinueHook
 import com.github.pfmiles.kanjava.impl.hooks.VisitDoWhileLoopHook
 import com.github.pfmiles.kanjava.impl.hooks.VisitEnhancedForLoopHook
 import com.github.pfmiles.kanjava.impl.hooks.VisitForLoopHook
@@ -174,10 +175,16 @@ class KanJavaAstWalker extends TreePathScanner<Void, Void> {
         ehooks.each {it.afterVisitStatement(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
         return null;
     }
-    
+
     Void visitBreak(BreakTree node, Void arg1) {
         def bhooks = this.hooks[VisitBreakHook.class]
         bhooks.each {it.visit(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
+        return null;
+    }
+
+    Void visitContinue(ContinueTree node, Void arg1) {
+        def chooks = this.hooks[VisitContinueHook.class]
+        chooks.each {it.visit(node, errMsgs, this.ctx, resolveRowAndCol, setError)}
         return null;
     }
 
@@ -278,15 +285,6 @@ class KanJavaAstWalker extends TreePathScanner<Void, Void> {
     Void visitConditionalExpression(ConditionalExpressionTree arg0, Void arg1) {
         // TODO Auto-generated method stub
         return super.visitConditionalExpression(arg0, arg1);
-    }
-
-    /* (non-Javadoc)
-     * @see com.sun.source.util.TreeScanner#visitContinue(com.sun.source.tree.ContinueTree, java.lang.Object)
-     */
-    @Override
-    Void visitContinue(ContinueTree arg0, Void arg1) {
-        // TODO Auto-generated method stub
-        return super.visitContinue(arg0, arg1);
     }
 
     /* (non-Javadoc)

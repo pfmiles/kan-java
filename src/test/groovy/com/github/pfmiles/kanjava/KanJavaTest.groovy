@@ -140,4 +140,30 @@ class KanJavaTest extends GroovyTestCase {
         assertTrue rst.classes == null
         println rst.errMsg
     }
+
+    // 禁止continue语句
+    void testContinueStatement(){
+        def kan = new KanJava(Feature.continueStmt)
+        def srcs = []
+        srcs << new JavaSourceFile("TestContinueStmt.java", "kanjava.test", readContent("testContinueStmt/TestContinueStmt.src"));
+        def rst = kan.compile(srcs)
+
+        assertTrue !rst.isSuccess()
+        assertTrue rst.errMsg != null
+        assertTrue rst.classes == null
+        println rst.errMsg
+    }
+    
+    // 禁止带标签的continue语句
+    void testLabeledContinue(){
+        def kan = new KanJava(Feature.labeledContinue)
+        def srcs = []
+        srcs << new JavaSourceFile("TestLabeledContinue.java", "kanjava.test", readContent("testLabeledContinue/TestLabeledContinue.src"));
+        def rst = kan.compile(srcs)
+
+        assertTrue !rst.isSuccess()
+        assertTrue rst.errMsg != null
+        assertTrue rst.classes == null
+        println rst.errMsg
+    }
 }

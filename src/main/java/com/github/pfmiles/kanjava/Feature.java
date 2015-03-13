@@ -7,12 +7,14 @@ import com.github.pfmiles.kanjava.impl.Cuttable;
 import com.github.pfmiles.kanjava.impl.Hook;
 import com.github.pfmiles.kanjava.impl.hooks.CutAssertFeatureVisitAssertHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutBreakFeatureVisitBreakHook;
+import com.github.pfmiles.kanjava.impl.hooks.CutContinueFeatureVisitContinueHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutDoWhileLoopFeatureVisitDoWhileLoopHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutEnhancedForLoopFeatureVisitEnhancedForLoopHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutForLoopFeatureVisitForLoopHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutNestedClassFeatureVisitClassHook;
 import com.github.pfmiles.kanjava.impl.hooks.CutWhileLoopFeatureVisitWhileLoopHook;
 import com.github.pfmiles.kanjava.impl.hooks.ForbidLabeledBreakVisitBreakHook;
+import com.github.pfmiles.kanjava.impl.hooks.ForbidLabeledContinueVisitContinueHook;
 
 /**
  * 预置的各种java语言特性，可选择性地"砍"
@@ -56,19 +58,19 @@ public enum Feature implements Cuttable {
      * break label1;
      * </pre>
      */
-    labeledBreak(new ForbidLabeledBreakVisitBreakHook());
-    // /**
-    // * continue语句
-    // */
-    // continueStmt,
-    // /**
-    // * 带标签的continue语句，如:
-    // *
-    // * <pre>
-    // * continue label1;
-    // * </pre>
-    // */
-    // labeledContinue;
+    labeledBreak(new ForbidLabeledBreakVisitBreakHook()),
+    /**
+     * continue语句
+     */
+    continueStmt(new CutContinueFeatureVisitContinueHook()),
+    /**
+     * 带标签的continue语句，如:
+     * 
+     * <pre>
+     * continue label1;
+     * </pre>
+     */
+    labeledContinue(new ForbidLabeledContinueVisitContinueHook());
 
     // 本feature关联的ast walker hook
     private List<Hook> hooks;

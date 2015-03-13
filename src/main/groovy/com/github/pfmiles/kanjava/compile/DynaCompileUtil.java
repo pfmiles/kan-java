@@ -20,7 +20,6 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
 
 import com.github.pfmiles.kanjava.JavaSourceFile;
 import com.github.pfmiles.kanjava.KanJavaException;
@@ -44,7 +43,13 @@ public class DynaCompileUtil {
      * @return 编译结果
      */
     public static CompilationResult compile(Set<JavaSourceFile> srcs, String cpJarFilePathStr, Iterable<? extends Processor> processors) {
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        // JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        JavaCompiler compiler = null;
+        try {
+            compiler = Class.forName("com.sun.tools.javac.api.JavacTool").asSubclass(JavaCompiler.class).newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         DynaFileManager fileManager = new DynaFileManager(compiler.getStandardFileManager(null, null, null));
         try {
             List<String> options = null;
