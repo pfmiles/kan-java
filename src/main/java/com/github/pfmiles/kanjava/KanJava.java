@@ -201,6 +201,13 @@ public class KanJava {
         return _compile(sources, toClassPathStr(clsPathJars), 2);
     }
 
+    /**
+     * 获取kan-java为你动态分析出的classpath :)，作为debug参考用或作为更大的classpath string的拼装基础
+     */
+    public String getKanJavaDynamicClassPath() {
+        return CpHolder.DYNA_CP;
+    }
+
     private KanJavaCompileResult _compile(List<JavaSourceFile> sources, String clsPathStr, int procExe) {
         if (sources == null || sources.isEmpty())
             throw new KanJavaException("Compiling sources must not be null or empty.");
