@@ -45,7 +45,7 @@ public class KanJava {
      * 创建KanJava编译工具实例
      * 
      * @param cuts
-     *            希望被砍掉的功能列表
+     *            希望被砍掉的功能列表(更“平凡”的说法应当是：希望被执行的AST"钩子"组实现列表)
      */
     public KanJava(Cuttable... cuts) {
         this.hooks = new HashMap<Class<? extends Hook>, List<Hook>>();
@@ -133,19 +133,19 @@ public class KanJava {
     }
 
     /**
-     * 动态编译String形式的java源码, kan-java将会自动分析出编译所需的classpath
+     * 做语法定制检查, 并动态编译String形式的java源码, kan-java将会自动分析出编译所需的classpath
      * 
      * @param sources
      *            源文件列表, 不能为空
      * @return 编译结果，包括class bytes和可能的错误信息
      * @throws KanJavaException
      */
-    public KanJavaCompileResult compile(List<JavaSourceFile> sources) {
-        return compile(sources, CpHolder.DYNA_CP);
+    public KanJavaCompileResult checkAndCompile(List<JavaSourceFile> sources) {
+        return checkAndCompile(sources, CpHolder.DYNA_CP);
     }
 
     /**
-     * 动态编译String形式的java源码
+     * 做语法定制检查, 并动态编译String形式的java源码
      * 
      * @param sources
      *            源文件列表, 不能为空
@@ -154,13 +154,60 @@ public class KanJava {
      * @return 编译结果，包括class bytes和可能的错误信息
      * @throws KanJavaException
      */
-    public KanJavaCompileResult compile(List<JavaSourceFile> sources, String clsPathStr) {
+    public KanJavaCompileResult checkAndCompile(List<JavaSourceFile> sources, String clsPathStr) {
+        return _compile(sources, clsPathStr, 0);
+    }
+
+    /**
+     * 做语法定制检查, 并动态编译String形式的java源码
+     * 
+     * @param sources
+     *            源文件列表, 不能为空
+     * @param clsPathJars
+     *            编译时作为classpath的jar包文件列表, 可为空
+     * @return 编译结果，包括class bytes和可能的错误信息
+     * @throws KanJavaException
+     */
+    public KanJavaCompileResult checkAndCompile(List<JavaSourceFile> sources, List<DiskJarFile> clsPathJars) {
+        return checkAndCompile(sources, toClassPathStr(clsPathJars));
+    }
+
+    /**
+     * 仅作语言特性定制的检查，报告可能的错误，但不会将源码编译为字节码; 注意此方法的报错并不会包括javac编译错误
+     */
+    public KanJavaCompileResult procOnly(List<JavaSourceFile> sources) {
+        return _compile(sources, null, 1);
+    }
+
+    /**
+     * 仅作编译，将传入源码编译为字节码，但不做语言特性定制的检查; 假定语言特性检查已由前置流程"onlyCheck"方法调用做掉
+     */
+    public KanJavaCompileResult compileOnly(List<JavaSourceFile> sources, String clsPathStr) {
+        return _compile(sources, clsPathStr, 2);
+    }
+
+    /**
+     * 仅作编译，将传入源码编译为字节码，但不做语言特性定制的检查; 假定语言特性检查已由前置流程"onlyCheck"方法调用做掉;
+     * 且在编译时使用kan-java动态分析出的classpath
+     */
+    public KanJavaCompileResult compileOnly(List<JavaSourceFile> sources) {
+        return compileOnly(sources, CpHolder.DYNA_CP);
+    }
+
+    /**
+     * 仅作编译，将传入源码编译为字节码，但不做语言特性定制的检查; 假定语言特性检查已由前置流程"onlyCheck"方法调用做掉
+     */
+    public KanJavaCompileResult compileOnly(List<JavaSourceFile> sources, List<DiskJarFile> clsPathJars) {
+        return _compile(sources, toClassPathStr(clsPathJars), 2);
+    }
+
+    private KanJavaCompileResult _compile(List<JavaSourceFile> sources, String clsPathStr, int procExe) {
         if (sources == null || sources.isEmpty())
             throw new KanJavaException("Compiling sources must not be null or empty.");
         List<Processor> procs = new ArrayList<Processor>();
         KanJavaProcessor processor = new KanJavaProcessor(this.hooks);
         procs.add(processor);
-        CompilationResult rst = DynaCompileUtil.compile(new LinkedHashSet<JavaSourceFile>(sources), clsPathStr, procs);
+        CompilationResult rst = DynaCompileUtil.compile(new LinkedHashSet<JavaSourceFile>(sources), clsPathStr, procs, procExe);
         StringBuilder sb = new StringBuilder();
         KanJavaCompileResult ret = new KanJavaCompileResult();
         if (rst.isError()) {
@@ -180,20 +227,6 @@ public class KanJava {
                 throw new KanJavaException(e);
             }
         return ret;
-    }
-
-    /**
-     * 动态编译String形式的java源码
-     * 
-     * @param sources
-     *            源文件列表, 不能为空
-     * @param clsPathJars
-     *            编译时作为classpath的jar包文件列表, 可为空
-     * @return 编译结果，包括class bytes和可能的错误信息
-     * @throws KanJavaException
-     */
-    public KanJavaCompileResult compile(List<JavaSourceFile> sources, List<DiskJarFile> clsPathJars) {
-        return compile(sources, toClassPathStr(clsPathJars));
     }
 
     // 生成动态编译的classpath，应包括所有传入的jar包
@@ -235,4 +268,5 @@ public class KanJava {
         }
         return KanJava.class.getClassLoader();
     }
+
 }

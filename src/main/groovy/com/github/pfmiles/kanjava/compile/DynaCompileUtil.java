@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -40,9 +41,12 @@ public class DynaCompileUtil {
      *            源码文件
      * @param cpJarFilePathStr
      *            classpath字符串，可为null
+     * @param procExe
+     *            是否仅仅执行annotation processor或仅仅执行编译： 0: 既检查又编译, 1: 仅执行检查, 2:
+     *            仅执行编译
      * @return 编译结果
      */
-    public static CompilationResult compile(Set<JavaSourceFile> srcs, String cpJarFilePathStr, Iterable<? extends Processor> processors) {
+    public static CompilationResult compile(Set<JavaSourceFile> srcs, String cpJarFilePathStr, Iterable<? extends Processor> processors, int procExe) {
         // JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         JavaCompiler compiler = null;
         try {
@@ -52,9 +56,20 @@ public class DynaCompileUtil {
         }
         DynaFileManager fileManager = new DynaFileManager(compiler.getStandardFileManager(null, null, null));
         try {
-            List<String> options = null;
-            if (cpJarFilePathStr != null)
-                options = Arrays.asList("-classpath", cpJarFilePathStr);
+            List<String> options = new ArrayList<String>();
+            if (cpJarFilePathStr != null) {
+                options.add("-classpath");
+                options.add(cpJarFilePathStr);
+            }
+            switch (procExe) {
+            case 1:
+                options.add("-proc:only");
+                break;
+            case 2:
+                options.add("-proc:none");
+            default:
+                break;
+            }
             DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
             StringWriter out = new StringWriter();
             CompilationTask task = compiler.getTask(out, fileManager, diagnostics, options, null, srcs);
@@ -64,7 +79,7 @@ public class DynaCompileUtil {
                 for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
                     try {
                         out.append("Error on line " + diagnostic.getLineNumber() + " in " + diagnostic).append('\n')
-                                .append("Code: \n" + diagnostic.getSource().getCharContent(true));
+                                .append("Code: \n" + diagnostic.getSource().getCharContent(true)).append("\n");
                     } catch (IOException e) {
                         // ignore...
                         out.append("Error on line " + diagnostic.getLineNumber() + " in " + diagnostic).append('\n');

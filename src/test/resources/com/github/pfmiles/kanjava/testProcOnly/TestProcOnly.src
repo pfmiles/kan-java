@@ -1,0 +1,12 @@
+package kanjava.test;
+
+public class TestProcOnly {
+
+    public static void main(String... args) {
+        // 此处存在javac编译错误，但不应该被procOnly调用检查到
+        List<Integer> is = new ArrayList<Integer>();
+        for(Integer i: is){
+            if(i == 5) break;
+        }
+    }
+}

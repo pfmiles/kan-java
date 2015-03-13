@@ -22,14 +22,14 @@ class KanJavaTest extends GroovyTestCase {
         srcs << new JavaSourceFile("Foo.java", "kanjava.test", readContent("testSuccess/Foo.src"))
         srcs << new JavaSourceFile("Bar.java", "kanjava.test", readContent("testSuccess/Bar.src"))
 
-        def rst = kan.compile(srcs, null)
+        def rst = kan.checkAndCompile(srcs, null)
         assertTrue rst.isSuccess()
         assertTrue rst.errMsg == null
         assertTrue(rst.classes !=null && rst.classes.size == 2)
         println "Static cp: " + rst.classes
 
         // dynamic classpath
-        rst = kan.compile(srcs)
+        rst = kan.checkAndCompile(srcs)
         assertTrue rst.isSuccess()
         assertTrue rst.errMsg == null
         assertTrue(rst.classes !=null && rst.classes.size == 2)
@@ -42,7 +42,7 @@ class KanJavaTest extends GroovyTestCase {
         def kan = new KanJava(Feature.assertion)
         def srcs = []
         srcs << new JavaSourceFile("TestAssert.java", "kanjava.test", readContent("testAssert/TestAssert.src"));
-        def rst = kan.compile(srcs, null)
+        def rst = kan.checkAndCompile(srcs, null)
 
         assertTrue !rst.isSuccess()
         assertTrue rst.errMsg != null
@@ -55,7 +55,7 @@ class KanJavaTest extends GroovyTestCase {
         def kan = new KanJava(Feature.forLoop)
         def srcs = []
         srcs << new JavaSourceFile("TestForLoop.java", "kanjava.test", readContent("testForLoop/TestForLoop.src"));
-        def rst = kan.compile(srcs)
+        def rst = kan.checkAndCompile(srcs)
 
         assertTrue !rst.isSuccess()
         assertTrue rst.errMsg != null
@@ -68,7 +68,7 @@ class KanJavaTest extends GroovyTestCase {
         def kan = new KanJava(Feature.whileLoop)
         def srcs = []
         srcs << new JavaSourceFile("TestWhileLoop.java", "kanjava.test", readContent("testWhileLoop/TestWhileLoop.src"));
-        def rst = kan.compile(srcs)
+        def rst = kan.checkAndCompile(srcs)
 
         assertTrue !rst.isSuccess()
         assertTrue rst.errMsg != null
@@ -81,7 +81,7 @@ class KanJavaTest extends GroovyTestCase {
         def kan = new KanJava(Feature.nestedClass)
         def srcs = []
         srcs << new JavaSourceFile("TestNestedClass.java", "kanjava.test", readContent("testNestedClass/TestNestedClass.src"));
-        def rst = kan.compile(srcs)
+        def rst = kan.checkAndCompile(srcs)
 
         assertTrue !rst.isSuccess()
         assertTrue rst.errMsg != null
@@ -94,7 +94,7 @@ class KanJavaTest extends GroovyTestCase {
         def kan = new KanJava(Feature.doWhileLoop)
         def srcs = []
         srcs << new JavaSourceFile("TestDoWhileLoop.java", "kanjava.test", readContent("testDoWhileLoop/TestDoWhileLoop.src"));
-        def rst = kan.compile(srcs)
+        def rst = kan.checkAndCompile(srcs)
 
         assertTrue !rst.isSuccess()
         assertTrue rst.errMsg != null
@@ -107,7 +107,7 @@ class KanJavaTest extends GroovyTestCase {
         def kan = new KanJava(Feature.enhancedForLoop)
         def srcs = []
         srcs << new JavaSourceFile("TestEnhancedForLoop.java", "kanjava.test", readContent("testEnhancedForLoop/TestEnhancedForLoop.src"));
-        def rst = kan.compile(srcs)
+        def rst = kan.checkAndCompile(srcs)
 
         assertTrue !rst.isSuccess()
         assertTrue rst.errMsg != null
@@ -120,7 +120,7 @@ class KanJavaTest extends GroovyTestCase {
         def kan = new KanJava(Feature.breakStmt)
         def srcs = []
         srcs << new JavaSourceFile("TestBreakStmt.java", "kanjava.test", readContent("testBreakStmt/TestBreakStmt.src"));
-        def rst = kan.compile(srcs)
+        def rst = kan.checkAndCompile(srcs)
 
         assertTrue !rst.isSuccess()
         assertTrue rst.errMsg != null
@@ -133,7 +133,7 @@ class KanJavaTest extends GroovyTestCase {
         def kan = new KanJava(Feature.labeledBreak)
         def srcs = []
         srcs << new JavaSourceFile("TestLabeledBreak.java", "kanjava.test", readContent("testLabeledBreak/TestLabeledBreak.src"));
-        def rst = kan.compile(srcs)
+        def rst = kan.checkAndCompile(srcs)
 
         assertTrue !rst.isSuccess()
         assertTrue rst.errMsg != null
@@ -146,21 +146,41 @@ class KanJavaTest extends GroovyTestCase {
         def kan = new KanJava(Feature.continueStmt)
         def srcs = []
         srcs << new JavaSourceFile("TestContinueStmt.java", "kanjava.test", readContent("testContinueStmt/TestContinueStmt.src"));
-        def rst = kan.compile(srcs)
+        def rst = kan.checkAndCompile(srcs)
 
         assertTrue !rst.isSuccess()
         assertTrue rst.errMsg != null
         assertTrue rst.classes == null
         println rst.errMsg
     }
-    
+
     // 禁止带标签的continue语句
     void testLabeledContinue(){
         def kan = new KanJava(Feature.labeledContinue)
         def srcs = []
         srcs << new JavaSourceFile("TestLabeledContinue.java", "kanjava.test", readContent("testLabeledContinue/TestLabeledContinue.src"));
-        def rst = kan.compile(srcs)
+        def rst = kan.checkAndCompile(srcs)
 
+        assertTrue !rst.isSuccess()
+        assertTrue rst.errMsg != null
+        assertTrue rst.classes == null
+        println rst.errMsg
+    }
+
+    // 测试仅仅做语法定制检查的情况, 该检查并不包括javac的编译错误
+    void testProcOnly(){
+        def kan = new KanJava(Feature.breakStmt)
+        def srcs = []
+        srcs << new JavaSourceFile("TestProcOnly.java", "kanjava.test", readContent("testProcOnly/TestProcOnly.src"));
+        def rst = kan.procOnly(srcs)
+
+        assertTrue !rst.isSuccess()
+        assertTrue rst.errMsg != null
+        assertTrue rst.classes == null
+        println rst.errMsg
+
+        // 应有javac编译错误
+        rst = kan.compileOnly(srcs);
         assertTrue !rst.isSuccess()
         assertTrue rst.errMsg != null
         assertTrue rst.classes == null
