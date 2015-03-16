@@ -8,7 +8,29 @@
 	<packaging>jar</packaging>
 
 	<name>kan-java</name>
+	<description>A dynamic compilation tool for java which also allows you to cut language features.</description>
 	<url>https://github.com/pfmiles/kan-java</url>
+
+	<licenses>
+		<license>
+			<name>Eclipse Public License - v 1.0</name>
+			<url>http://www.eclipse.org/legal/epl-v10.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>pf_miles</id>
+			<name>Yue Wen</name>
+			<email>miles.wy.1@gmail.com</email>
+		</developer>
+	</developers>
+
+	<scm>
+		<url>https://github.com/pfmiles/kan-java</url>
+		<connection>scm:git:git@github.com:pfmiles/kan-java.git</connection>
+	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
