@@ -88,8 +88,12 @@ public class DynaCompileUtil {
             if (!task.call()) {
                 for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
                     try {
-                        out.append("Error on line " + diagnostic.getLineNumber() + " in " + diagnostic).append('\n')
-                                .append("Code: \n" + diagnostic.getSource().getCharContent(true)).append("\n");
+                        // errors only
+                        if (javax.tools.Diagnostic.Kind.ERROR == diagnostic.getKind()) {
+                            out.append("Error on line " + diagnostic.getLineNumber() + " in " + diagnostic).append('\n');
+                            if (diagnostic.getSource() != null)
+                                out.append("Code: \n" + diagnostic.getSource().getCharContent(true)).append("\n");
+                        }
                     } catch (IOException e) {
                         // ignore...
                         out.append("Error on line " + diagnostic.getLineNumber() + " in " + diagnostic).append('\n');
