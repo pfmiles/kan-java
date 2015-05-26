@@ -40,36 +40,26 @@
 
 	<profiles>
 		<profile>
-			<id>unix_profile</id>
+			<id>use-standard-tool-jar</id>
 			<activation>
-				<os>
-					<family>unix</family>
-				</os>
+				<file>
+					<exists>${java.home}/../lib/tools.jar</exists>
+				</file>
 			</activation>
 			<properties>
-				<toolsjar>${java.home}/../lib/tools.jar</toolsjar>
+				<tools-jar-path>${java.home}/../lib/tools.jar</tools-jar-path>
 			</properties>
 		</profile>
 		<profile>
-			<id>windows_profile</id>
+			<!-- Only for mac brewed jdk, tool.jar is put at ${java.home}/../Classes/classes.jar. -->
+			<id>tool-jar-use-classes-jar</id>
 			<activation>
-				<os>
-					<family>windows</family>
-				</os>
+				<file>
+					<exists>${java.home}/../Classes/classes.jar</exists>
+				</file>
 			</activation>
 			<properties>
-				<toolsjar>${java.home}/../lib/tools.jar</toolsjar>
-			</properties>
-		</profile>
-		<profile>
-			<id>osx_profile</id>
-			<activation>
-				<os>
-					<family>mac</family>
-				</os>
-			</activation>
-			<properties>
-				<toolsjar>${java.home}/../Classes/classes.jar</toolsjar>
+				<tools-jar-path>${java.home}/../Classes/classes.jar</tools-jar-path>
 			</properties>
 		</profile>
 	</profiles>
@@ -88,7 +78,7 @@
 			<artifactId>tools</artifactId>
 			<version>1.6.0</version>
 			<scope>system</scope>
-			<systemPath>${toolsjar}</systemPath>
+			<systemPath>${tools-jar-path}</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
