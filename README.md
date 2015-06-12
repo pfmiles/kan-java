@@ -99,11 +99,4 @@ kan-java提供的api能够将“砍语法”和“编译为字节码”拆分为
 
 按道理讲，除了java标准库，kan-java是不需要依赖任何第三方库的，不过项目中出现了对groovy-all的依赖，这仅仅是因为我想实践一把"java和groovy混编开发模式"的任性而已，不要太在意 :)  
 
-目前的发布版本为v0.1, maven依赖为：  
-    
-    <dependency>
-        <groupId>com.github.pfmiles</groupId>
-        <artifactId>kan-java</artifactId>
-        <version>0.1</version>
-    </dependency>
-    
+目前的发布版本及maven依赖方式详见：[Releases](https://github.com/pfmiles/kan-java/releases)
